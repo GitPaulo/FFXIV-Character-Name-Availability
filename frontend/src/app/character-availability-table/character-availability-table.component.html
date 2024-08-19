@@ -1,0 +1,33 @@
+<div *ngIf="data" class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th>Region</th>
+        <th>Data Center</th>
+        <th>World</th>
+        <th>Available</th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngFor="let region of objectKeys(data)">
+        <ng-container
+          *ngFor="let dc of objectKeys(data[region]); let dcIndex = index"
+        >
+          <ng-container *ngFor="let world of objectKeys(data[region][dc])">
+            <tr
+              [ngStyle]="{
+                'background-color': getBackgroundColor(dcIndex),
+                border: data[region][dc][world] ? '2px solid green' : 'none'
+              }"
+            >
+              <td>{{ region }}</td>
+              <td>{{ dc }}</td>
+              <td>{{ world }}</td>
+              <td>{{ data[region][dc][world] ? "Yes" : "No" }}</td>
+            </tr>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+    </tbody>
+  </table>
+</div>

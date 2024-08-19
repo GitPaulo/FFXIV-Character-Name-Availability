@@ -1,0 +1,27 @@
+.table-container {
+  max-height: 400px; /* Set a maximum height for the table container */
+  overflow-y: auto; /* Enable vertical scrolling */
+  border: 1px solid #ddd; /* Add a border to better define the scrollable area */
+  border-radius: 8px; /* Add rounded corners */
+  padding: 0.5rem; /* Add some padding inside the scrollable container */
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+th, td {
+  padding: 0.5rem;
+  text-align: left;
+  border: 1px solid #ccc;
+}
+
+th {
+  background-color: #f4f4f4;
+}
+
+tr:nth-child(odd) {
+  background-color: #f9f9f9; /* Light gray for better readability */
+}

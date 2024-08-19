@@ -1,0 +1,27 @@
+<div class="display">
+  <div [class.loading]="loading" [class.results-loaded]="result">
+    <h1>FFXIV Character Name Availability</h1>
+    <form (ngSubmit)="checkAvailability()">
+      <label for="characterQuery" class="visually-hidden">Character Name</label>
+      <input
+        id="characterQuery"
+        type="text"
+        [(ngModel)]="query"
+        name="query"
+        placeholder="Enter character name"
+        required
+      />
+      <button type="submit" [disabled]="loading">
+        {{ loading ? "Checking..." : "Check Availability" }}
+      </button>
+    </form>
+    <div *ngIf="loading" class="loading-spinner"></div>
+  </div>
+  <div class="results-container" *ngIf="result || error">
+    <div *ngIf="error" class="error-message">{{ error }}</div>
+    <app-character-availability-table
+      *ngIf="result"
+      [data]="result"
+    ></app-character-availability-table>
+  </div>
+</div>
