@@ -7,11 +7,12 @@ const rateLimit = require("express-rate-limit");
 const logger = require("./logger");
 const isValidCharacterName = require("./lib/isValidCharacterName");
 const findCharacterNameAvailability = require("./lib/findCharacterNameAvailabilty");
+const { MIN_CHARACTER_NAME_LENGTH, MAX_CHARACTER_NAME_LENGTH, MAX_CHARACTER_NAME_COMBINED_LENGTH } = require("./lib/CharacterNameContants");
 
 const app = express();
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,                 // limit each IP to 100 requests per windowMs
+  max: 100, // limit each IP to 100 requests per windowMs
 });
 const PORT = process.env.PORT || 6969;
 
@@ -47,7 +48,7 @@ app.get("/api/character-availability", async (req, res) => {
     if (!isValidCharacterName(query)) {
       return res.status(400).json({
         error:
-          `Invalid character name. Please ensure the name follows FFXIV's naming rules:` +
+          `Invalid character name. Please ensure the name follows FFXIV's naming rules:\n` +
           `two words, each between ${MIN_CHARACTER_NAME_LENGTH} and ${MAX_CHARACTER_NAME_LENGTH} characters, with a combined maximum of ${MAX_CHARACTER_NAME_COMBINED_LENGTH} characters.`,
       });
     }

@@ -39,6 +39,7 @@ export class CharacterAvailabilityDisplayComponent {
     this.characterService.checkCharacterAvailability(this.query)
       .pipe(
         catchError(err => {
+          debugger;
           this.error = err?.error?.error || 'An unknown error occurred. Please try again.';
           return of(null);
         }),
