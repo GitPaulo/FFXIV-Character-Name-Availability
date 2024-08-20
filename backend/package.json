@@ -1,5 +1,5 @@
 {
-  "name": "ffxiv-name-webscraper",
+  "name": "ffxiv-character-availability-backend",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -13,10 +13,12 @@
     "axios": "^1.7.4",
     "body-parser": "^1.20.2",
     "cheerio": "^1.0.0",
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-rate-limit": "^7.4.0",
     "morgan": "^1.10.0",
     "node-cache": "^5.1.2",
-    "p-limit": "^3.1.0"
+    "p-limit": "^3.1.0",
+    "winston": "^3.14.2"
   }
 }
