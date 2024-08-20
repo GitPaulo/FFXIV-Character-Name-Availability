@@ -2,7 +2,9 @@ const axios = require("axios");
 const cheerio = require("cheerio");
 const pLimit = require("p-limit");
 const NodeCache = require("node-cache");
-const winston = require('winston');
+
+// Logger
+const logger = require('./logger');
 
 // Constants and configuration
 const config = require("./config");
@@ -14,21 +16,6 @@ const BACKOFF_CAP = 16000; // 16 seconds
 // Initialize NodeCache
 const availabilityCache = new NodeCache({ stdTTL: 3600, checkperiod: 600 });
 const regionCache = new NodeCache({ stdTTL: 21600, checkperiod: 1200 });
-
-// Set up Winston logger
-const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
-  format: winston.format.combine(
-    winston.format.colorize(),
-    winston.format.timestamp(),
-    winston.format.printf(({ timestamp, level, message }) => {
-      return `${timestamp} ${level}: ${message}`;
-    })
-  ),
-  transports: [
-    new winston.transports.Console(),
-  ],
-});
 
 async function fetchRegionDatacenterWorldTable() {
   const cacheKey = "regionData";
