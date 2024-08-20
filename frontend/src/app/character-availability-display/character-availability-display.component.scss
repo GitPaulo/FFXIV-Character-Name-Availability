@@ -35,6 +35,13 @@ $box-shadow-color: rgba(0, 123, 255, 0.2);
   font-size: 4rem;
   letter-spacing: 0.24rem;
   margin-bottom: 1rem;
+  color: #0e0e0e;
+
+  @include transition(opacity);
+
+  @media (max-width: 600px) {
+    display: none;
+  }
 }
 
 // Display container
@@ -73,6 +80,9 @@ input[type="text"] {
   font-size: 1rem;
   color: $font-color;
   background-color: $input-background;
+  min-width: 8rem; /* Ensures a minimum width */
+  width: 100%; /* Default to 100% width on smaller screens */
+  max-width: 100%; /* Limit width to container's width */
 
   @include transition(border-color, background-color, box-shadow);
 
@@ -92,6 +102,11 @@ input[type="text"] {
     border-color: $error-color;
     background-color: lighten($error-color, 90%);
   }
+
+  @media (min-width: 600px) {
+    width: auto; /* Allow width to be determined by content on larger screens */
+    max-width: 50%; /* Adjust max-width for larger screens */
+  }
 }
 
 // Button styles
@@ -105,6 +120,10 @@ button[type="submit"] {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  margin-top: 0.5rem; /* Add margin-top for spacing */
+  width: 100%; /* Full width by default on mobile */
+  max-width: 100%; /* Ensure button doesn't exceed the container width */
+  min-width: 8rem; /* Same min-width as the input */
 
   @include transition(background-color, transform, box-shadow);
 
@@ -126,8 +145,22 @@ button[type="submit"] {
   }
 
   &:focus {
-    @include focus-box-shadow($box-shadow-color);
+    outline: 2px dashed darken($primary-color, 20%);
+    outline-offset: 4px;
+  }
+
+  &:focus:not(:focus-visible) {
     outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: 4px;
+  }
+
+  @media (min-width: 600px) {
+    width: auto; /* Revert to auto width on larger screens */
+    margin-top: 0; /* Remove top margin on larger screens */
   }
 }
 

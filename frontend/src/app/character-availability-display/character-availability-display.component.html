@@ -6,10 +6,10 @@
       <input
         id="characterQuery"
         type="text"
-        [(ngModel)]="query"
-        (ngModelChange)="onInputChange()"
         name="query"
         placeholder="John Doe"
+        [(ngModel)]="query"
+        (ngModelChange)="onInputChange()"
         [ngClass]="{
           'valid-border': isValid === true,
           'invalid-border': isValid === false

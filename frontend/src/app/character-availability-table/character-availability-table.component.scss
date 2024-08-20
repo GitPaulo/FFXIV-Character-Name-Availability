@@ -1,9 +1,10 @@
 .table-container {
-  max-height: 400px; /* Set a maximum height for the table container */
-  overflow-y: auto; /* Enable vertical scrolling */
-  border: 1px solid #ddd; /* Add a border to better define the scrollable area */
-  border-radius: 8px; /* Add rounded corners */
-  padding: 0.5rem; /* Add some padding inside the scrollable container */
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 0.4rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0.5rem;
 }
 
 table {
@@ -20,8 +21,62 @@ th, td {
 
 th {
   background-color: #f4f4f4;
+  cursor: pointer;
+  user-select: none;
 }
 
-tr:nth-child(odd) {
-  background-color: #f9f9f9; /* Light gray for better readability */
+th:hover {
+  background-color: #e0e0e0;
+}
+
+tr:nth-child(odd) td {
+  background-color: #f9f9f9;
+}
+
+td.available {
+  border: 2px solid green;
+}
+
+tr {
+  transition: background-color 0.3s ease-in-out;
+}
+
+.filter-container {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.filter-input {
+  width: 50%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 5px;
+  font-size: 1rem;
+  color: #333;
+  background-color: #f9f9f9;
+  transition: border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.filter-input:focus {
+  border-color: #007bff;
+  background-color: #fff;
+  outline: none;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
+}
+
+/**
+  * Quick and dirty hovers and active states for the rows.
+  */
+
+#availability-row {
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
+}
+
+#availability-row:hover {
+  box-shadow: 0 0 12px rgba(0, 123, 255, 0.2);
+}
+
+#availability-row:active {
+  box-shadow: 0 0 12px rgba(0, 123, 255, 0.4);
 }

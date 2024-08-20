@@ -1,33 +1,37 @@
-<div *ngIf="data" class="table-container">
-  <table>
+<div *ngIf="sortedData.length > 0" class="table-container">
+  <table aria-label="Character Availability Table">
     <thead>
       <tr>
-        <th>Region</th>
-        <th>Data Center</th>
-        <th>World</th>
-        <th>Available</th>
+        <th scope="col" (click)="sortTable('region')">Region</th>
+        <th scope="col" (click)="sortTable('dc')">Data Center</th>
+        <th scope="col" (click)="sortTable('world')">World</th>
+        <th scope="col" (click)="sortTable('available')">Available</th>
       </tr>
     </thead>
     <tbody>
-      <ng-container *ngFor="let region of objectKeys(data)">
-        <ng-container
-          *ngFor="let dc of objectKeys(data[region]); let dcIndex = index"
-        >
-          <ng-container *ngFor="let world of objectKeys(data[region][dc])">
-            <tr
-              [ngStyle]="{
-                'background-color': getBackgroundColor(dcIndex),
-                border: data[region][dc][world] ? '2px solid green' : 'none'
-              }"
-            >
-              <td>{{ region }}</td>
-              <td>{{ dc }}</td>
-              <td>{{ world }}</td>
-              <td>{{ data[region][dc][world] ? "Yes" : "No" }}</td>
-            </tr>
-          </ng-container>
-        </ng-container>
-      </ng-container>
+      <tr
+        id="availability-row"
+        *ngFor="let item of filteredData"
+        [ngStyle]="{ 'background-color': item.color }"
+        (click)="openCharacterPage(item.world)"
+      >
+        <td>{{ item.region }}</td>
+        <td>{{ item.dc }}</td>
+        <td>{{ item.world }}</td>
+        <td [ngClass]="{ available: item.available }">
+          {{ item.available ? "Yes" : "No" }}
+        </td>
+      </tr>
     </tbody>
   </table>
+</div>
+
+<div class="filter-container">
+  <input
+    type="text"
+    placeholder="Filter by World or Data Center"
+    [(ngModel)]="filterQuery"
+    (ngModelChange)="onFilterChange($event)"
+    class="filter-input"
+  />
 </div>

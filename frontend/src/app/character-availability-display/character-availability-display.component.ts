@@ -7,11 +7,6 @@ import { catchError, finalize } from 'rxjs/operators';
 import { CharacterAvailabilityService } from '../services/character-availability.service';
 import { CharacterAvailabilityTableComponent } from '../character-availability-table/character-availability-table.component';
 
-export const CHARACTER_NAME_REGEX = /^[a-zA-Z]+$/;
-export const MAX_CHARACTER_NAME_LENGTH = 15;
-export const MIN_CHARACTER_NAME_LENGTH = 2;
-export const MAX_CHARACTER_NAME_COMBINED_LENGTH = 20;
-
 @Component({
   selector: 'app-character-availability-display',
   standalone: true,
@@ -28,35 +23,10 @@ export class CharacterAvailabilityDisplayComponent {
 
   constructor(private readonly characterService: CharacterAvailabilityService) { }
 
-  private validateCharacterName(query: string): boolean {
-    const names = query.split(' ');
-
-    if (names.length !== 2) return false;
-
-    const [firstName, lastName] = names;
-
-    if (!CHARACTER_NAME_REGEX.test(firstName) || !CHARACTER_NAME_REGEX.test(lastName)) {
-      return false;
-    }
-
-    if (
-      firstName.length < MIN_CHARACTER_NAME_LENGTH ||
-      firstName.length > MAX_CHARACTER_NAME_LENGTH ||
-      lastName.length < MIN_CHARACTER_NAME_LENGTH ||
-      lastName.length > MAX_CHARACTER_NAME_LENGTH
-    ) {
-      return false;
-    }
-
-    if (firstName.length + lastName.length > MAX_CHARACTER_NAME_COMBINED_LENGTH) {
-      return false;
-    }
-
-    return true;
-  }
-
   onInputChange(): void {
-    this.isValid = this.validateCharacterName(this.query);
+    // Important: Using CJS function from backend B)
+    const isValidCharacterName = require('../../../../backend/lib/isValidCharacterName.js') as (query: string) => boolean;
+    this.isValid = isValidCharacterName(this.query);
   }
 
   checkAvailability(): void {

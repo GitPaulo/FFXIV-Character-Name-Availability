@@ -34,8 +34,7 @@ h2,
 h3,
 h4,
 h5,
-h6
-{
+h6 {
   font-family: "PencilFont", sans-serif; /* Ensure headings use the custom font */
   letter-spacing: 0.025rem;
   word-spacing: 0.1rem;
@@ -60,4 +59,34 @@ body {
   background-position: center;
   background-repeat: no-repeat;
   height: 100%;
+}
+
+/**
+  * Smooth global transitions
+  */
+
+* {
+  box-sizing: border-box;
+  transition: all 0.3s ease-in-out; /* Applies to all properties by default */
+}
+
+a,
+button,
+input,
+textarea {
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out,
+    border-color 0.3s ease-in-out, transform 0.3s ease-in-out,
+    box-shadow 0.3s ease-in-out;
+}
+
+a:hover,
+button:hover {
+  transform: translateY(-2px); /* Adds a slight "lift" effect */
+}
+
+input:focus,
+textarea:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.4);
+  outline: none;
 }
