@@ -92,7 +92,7 @@ async function scrapeCharacter(
 
   if (cachedResult !== undefined) {
     logger.debug(`Cache hit for world: ${world}`);
-    resultContainer[world] = false;
+    resultContainer[world] = !cachedResult;
     return;
   }
 

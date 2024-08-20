@@ -1,3 +1,7 @@
+/**
+  * Global styles for the application
+  */
+
 *,
 *::before,
 *::after {
@@ -11,15 +15,47 @@ html {
 }
 
 body {
-  font-family: 'Roboto', sans-serif; /* You can change this to your preferred font */
-  font-size: 16px;
-  line-height: 1.5;
+  color: #333;
   background-color: #f4f4f9;
   -webkit-font-smoothing: antialiased;
 }
 
+/**
+  * FFXIV Font
+  */
+
+@font-face {
+  font-family: "PencilFont";
+  src: url("../public/OPTIEngeEtienne.otf") format("truetype");
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6
+{
+  font-family: "PencilFont", sans-serif; /* Ensure headings use the custom font */
+  letter-spacing: 0.025rem;
+  word-spacing: 0.1rem;
+  font-weight: 700;
+}
+
+input,
+textarea,
+select,
+button,
+body {
+  font-family: "Roboto", sans-serif; /* Ensure all other text uses the default font */
+}
+
+/**
+  * Background
+  */
+
 .body-background {
-  background-image: url('../public/ffxiv_background.jpeg');
+  background-image: url("../public/ffxiv_background.jpeg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

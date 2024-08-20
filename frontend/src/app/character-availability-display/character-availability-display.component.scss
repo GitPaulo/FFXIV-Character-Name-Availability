@@ -1,3 +1,25 @@
+// Variables
+$font-color: #333;
+$background-color: #ffffff;
+$primary-color: #007bff;
+$secondary-color: #0056b3;
+$error-color: red;
+$success-color: green;
+$disabled-color: #cccccc;
+$input-background: #f9f9f9;
+$input-border: #e0e0e0;
+$box-shadow-color: rgba(0, 123, 255, 0.2);
+
+// Mixins
+@mixin transition($properties, $duration: 0.3s, $easing: ease) {
+  transition: $properties $duration $easing;
+}
+
+@mixin focus-box-shadow($color) {
+  box-shadow: 0 0 8px $color;
+}
+
+// Base styles
 :host {
   display: flex;
   flex-direction: column;
@@ -9,31 +31,119 @@
   box-sizing: border-box;
 }
 
-.display {
-  background-color: #ffffff;
-  color: #333;
-  padding: 2.5rem; /* Increased padding for more space */
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
-  max-width: 700px; /* Increased max-width for more room */
-  width: 100%;
-  overflow: hidden;
+#title {
+  font-size: 4rem;
+  letter-spacing: 0.24rem;
+  margin-bottom: 1rem;
 }
 
+// Display container
+.display {
+  background-color: $background-color;
+  color: $font-color;
+  padding: 2.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.1);
+  max-width: 700px;
+  width: 100%;
+  overflow: hidden;
+
+  @include transition(transform);
+
+  &.loading {
+    h1,
+    form {
+      transform: translateY(-10px);
+    }
+  }
+
+  &.results-loaded {
+    h1,
+    form {
+      transform: translateY(-30px);
+    }
+  }
+}
+
+// Input styles
+input[type="text"] {
+  padding: 0.75rem 1rem;
+  border: 2px solid $input-border;
+  border-radius: 5px;
+  font-size: 1rem;
+  color: $font-color;
+  background-color: $input-background;
+
+  @include transition(border-color, background-color, box-shadow);
+
+  &:focus {
+    border-color: $primary-color;
+    background-color: #fff;
+    outline: none;
+    @include focus-box-shadow($box-shadow-color);
+  }
+
+  &.valid-border {
+    border-color: $success-color;
+    background-color: lighten($success-color, 90%);
+  }
+
+  &.invalid-border {
+    border-color: $error-color;
+    background-color: lighten($error-color, 90%);
+  }
+}
+
+// Button styles
+button[type="submit"] {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #fff;
+  background-color: $primary-color;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+
+  @include transition(background-color, transform, box-shadow);
+
+  &:hover {
+    background-color: $secondary-color;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 123, 255, 0.2);
+  }
+
+  &:active {
+    background-color: darken($primary-color, 15%);
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+  }
+
+  &:disabled {
+    background-color: $disabled-color;
+    cursor: not-allowed;
+  }
+
+  &:focus {
+    @include focus-box-shadow($box-shadow-color);
+    outline: none;
+  }
+}
+
+// Loading spinner
 .loading-spinner {
   border: 4px solid rgba(0, 0, 0, 0.1);
-  border-left-color: #007bff;
+  border-left-color: $primary-color;
   border-radius: 50%;
   width: 36px;
   height: 36px;
   animation: spin 1s linear infinite;
-  margin-top: 1rem;
-
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto; /* Center horizontally */
+  margin: 0 auto;
+  margin-top: 2rem;
 }
 
 @keyframes spin {
@@ -42,38 +152,24 @@
   }
 }
 
+// Results container
 .results-container {
-  transition: transform 0.3s ease;
+  @include transition(transform);
   transform: translateY(10px);
-  color: #333;
-  padding-top: 1.5rem; /* Added more padding for spacing */
+  color: $font-color;
+
+  &.results-loaded {
+    transform: translateY(0);
+  }
 }
 
-.results-loaded .results-container {
-  transform: translateY(0);
-}
-
-.loading h1,
-.loading form {
-  transform: translateY(-10px); /* Reduced translation to prevent overflow */
-}
-
-.results-loaded h1,
-.results-loaded form {
-  transform: translateY(-30px); /* Reduced translation to prevent overflow */
-}
-
-h1,
-form,
-.results-container {
-  transition: transform 0.3s ease;
-}
-
+// Error message
 .error-message {
-  color: red;
+  color: $error-color;
   padding-top: 1rem;
 }
 
+// Visually hidden (accessibility)
 .visually-hidden {
   position: absolute;
   width: 1px;

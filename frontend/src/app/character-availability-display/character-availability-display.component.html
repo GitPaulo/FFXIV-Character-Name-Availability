@@ -1,17 +1,22 @@
 <div class="display">
   <div [class.loading]="loading" [class.results-loaded]="result">
-    <h1>FFXIV Character Name Availability</h1>
+    <h1 id="title">FINAL FANTASY XIV | Name Search</h1>
     <form (ngSubmit)="checkAvailability()">
       <label for="characterQuery" class="visually-hidden">Character Name</label>
       <input
         id="characterQuery"
         type="text"
         [(ngModel)]="query"
+        (ngModelChange)="onInputChange()"
         name="query"
-        placeholder="Enter character name"
+        placeholder="John Doe"
+        [ngClass]="{
+          'valid-border': isValid === true,
+          'invalid-border': isValid === false
+        }"
         required
       />
-      <button type="submit" [disabled]="loading">
+      <button type="submit" [disabled]="loading || isValid === false">
         {{ loading ? "Checking..." : "Check Availability" }}
       </button>
     </form>
