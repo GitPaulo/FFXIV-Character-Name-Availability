@@ -4,10 +4,10 @@ const pLimit = require("p-limit");
 const NodeCache = require("node-cache");
 
 // Logger
-const logger = require('./logger');
+const logger = require('../logger');
 
 // Constants and configuration
-const config = require("./config");
+const config = require("../config");
 const limit = pLimit(config.P_LIMIT_CONCURRENCY);
 const MAX_RETRIES = config.MAX_RETRIES;
 const INITIAL_DELAY = config.INITIAL_DELAY;
@@ -78,41 +78,6 @@ function parseRegionDataCenters($, regionSelector) {
   });
 
   return dataCenters;
-}
-
-async function findCharacterNameAvailability(fullNameQuery) {
-  try {
-    const regions = await fetchRegionDatacenterWorldTable();
-    const results = {};
-    const tasks = [];
-    logger.debug("Regions:", regions);
-
-    for (const [regionName, dataCenters] of Object.entries(regions)) {
-      results[regionName] = {};
-
-      for (const [dataCenter, worlds] of Object.entries(dataCenters)) {
-        results[regionName][dataCenter] = {};
-
-        worlds.forEach((world) => {
-          tasks.push(
-            limit(() =>
-              scrapeCharacter(
-                fullNameQuery,
-                world,
-                results[regionName][dataCenter]
-              )
-            )
-          );
-        });
-      }
-    }
-
-    await Promise.all(tasks);
-    return results;
-  } catch (error) {
-    logger.error("Error occurred during character search", error);
-    throw error;
-  }
 }
 
 async function scrapeCharacter(
@@ -197,4 +162,42 @@ function checkForMatch($, fullNameQuery, world) {
   return matchFound;
 }
 
-exports.findCharacterNameAvailability = findCharacterNameAvailability;
+/**
+ * Find character name availability across all regions, data centers, and worlds
+ * @param {string} fullNameQuery 
+ * @returns Promise<Record<string, Record<string, Record<string, boolean>>>>
+ */
+module.exports = async (fullNameQuery) => {
+  try {
+    const regions = await fetchRegionDatacenterWorldTable();
+    const results = {};
+    const tasks = [];
+    logger.debug("Regions:", regions);
+
+    for (const [regionName, dataCenters] of Object.entries(regions)) {
+      results[regionName] = {};
+
+      for (const [dataCenter, worlds] of Object.entries(dataCenters)) {
+        results[regionName][dataCenter] = {};
+
+        worlds.forEach((world) => {
+          tasks.push(
+            limit(() =>
+              scrapeCharacter(
+                fullNameQuery,
+                world,
+                results[regionName][dataCenter]
+              )
+            )
+          );
+        });
+      }
+    }
+
+    await Promise.all(tasks);
+    return results;
+  } catch (error) {
+    logger.error("Error occurred during character search", error);
+    throw error;
+  }
+}
