@@ -20,6 +20,11 @@ To deploy the function to firebase, run:
   firebase deploy --only functions
 ```
 
+## Monitor
+
+- https://console.firebase.google.com/u/2/project/ffxiv-cna/functions
+- Billing: https://console.cloud.google.com/billing/016DB6-007595-856070?authuser=2&hl=en&project=ffxiv-cna
+
 ## Problems
 
 1. This webscraping crap won't scale. We need more clever thinking.
