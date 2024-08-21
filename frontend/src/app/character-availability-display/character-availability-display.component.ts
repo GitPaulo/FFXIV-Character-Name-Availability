@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { of } from 'rxjs';
@@ -14,7 +14,9 @@ import { CharacterAvailabilityTableComponent } from '../character-availability-t
   templateUrl: './character-availability-display.component.html',
   styleUrls: ['./character-availability-display.component.scss'],
 })
-export class CharacterAvailabilityDisplayComponent {
+export class CharacterAvailabilityDisplayComponent implements AfterViewInit {
+  @ViewChild('characterQueryInput') characterQueryInput!: ElementRef;
+
   query = '';
   result: any = null;
   error: string | null = null;
@@ -23,6 +25,10 @@ export class CharacterAvailabilityDisplayComponent {
 
   constructor(private readonly characterService: CharacterAvailabilityService) { }
 
+  ngAfterViewInit(): void {
+    this.characterQueryInput.nativeElement.focus(); // Auto focus on input field
+  }
+
   onInputChange(): void {
     // Important: Using CJS function from backend B)
     const isValidCharacterName = require('../../../../backend/lib/isValidCharacterName.js') as (query: string) => boolean;
@@ -30,7 +36,10 @@ export class CharacterAvailabilityDisplayComponent {
   }
 
   checkAvailability(): void {
-    if (!this.isValid || !this.query) return;
+    if (!this.isValid || !this.query) {
+      this.error = "Please enter a valid character name.";
+      return;
+    }
 
     this.loading = true;
     this.error = null;
@@ -39,7 +48,6 @@ export class CharacterAvailabilityDisplayComponent {
     this.characterService.checkCharacterAvailability(this.query)
       .pipe(
         catchError(err => {
-          debugger;
           this.error = err?.error?.error || 'An unknown error occurred. Please try again.';
           return of(null);
         }),

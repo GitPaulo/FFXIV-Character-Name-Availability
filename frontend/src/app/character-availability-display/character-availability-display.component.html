@@ -4,6 +4,7 @@
     <form (ngSubmit)="checkAvailability()">
       <label for="characterQuery" class="visually-hidden">Character Name</label>
       <input
+        #characterQueryInput
         id="characterQuery"
         type="text"
         name="query"
