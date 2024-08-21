@@ -1,6 +1,8 @@
+const cors = require("cors");
+const morgan = require("morgan");
+const helmet = require("helmet");
 const express = require("express");
 const bodyParser = require("body-parser");
-const morgan = require("morgan");
 const rateLimit = require("express-rate-limit");
 
 // Custom modules
@@ -17,6 +19,8 @@ const limiter = rateLimit({
 const PORT = process.env.PORT || 6969;
 
 // Middleware
+app.use(helmet()); // For setting various HTTP headers for security
+app.use(cors({ origin: true })); // For enabling CORS headers
 app.use(bodyParser.json()); // For parsing application/json
 app.use(
   morgan("combined", {
