@@ -5,6 +5,7 @@ import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
 import { CharacterAvailabilityData } from '../services/character-availability.service';
+import { TooltipDirective } from '../tooltip.directive';
 
 // Define the type for a single row in the availability table
 type AvailabilityTableRow = {
@@ -21,7 +22,7 @@ type SortableColumns = 'region' | 'dc' | 'world' | 'available';
 @Component({
   selector: 'app-character-availability-table',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TooltipDirective],
   templateUrl: './character-availability-table.component.html',
   styleUrls: ['./character-availability-table.component.scss'],
 })

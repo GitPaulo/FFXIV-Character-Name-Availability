@@ -14,6 +14,9 @@
         *ngFor="let item of filteredData"
         [ngStyle]="{ 'background-color': item.color }"
         (click)="openCharacterPage(item.world)"
+        [appTooltip]="
+          'View in Lodestone for ' + item.world + ' in ' + item.region
+        "
       >
         <td>{{ item.region }}</td>
         <td>{{ item.dc }}</td>
