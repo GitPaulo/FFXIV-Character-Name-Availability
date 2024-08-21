@@ -2,4 +2,4 @@
 
 Search for character name availability accross all FFXIV servers!
 
-![ffxivcac](image.png)
+![ffxivcac](preview.png)
