@@ -2,10 +2,30 @@
   <table aria-label="Character Availability Table">
     <thead>
       <tr>
-        <th scope="col" (click)="sortTable('region')">Region</th>
-        <th scope="col" (click)="sortTable('dc')">Data Center</th>
-        <th scope="col" (click)="sortTable('world')">World</th>
-        <th scope="col" (click)="sortTable('available')">Available</th>
+        <th
+          scope="col"
+          appTooltip="Sort by Region"
+          (click)="sortTable('region')"
+        >
+          Region
+        </th>
+        <th
+          scope="col"
+          appTooltip="Sort by Data Center"
+          (click)="sortTable('dc')"
+        >
+          Data Center
+        </th>
+        <th scope="col" appTooltip="Sort by World" (click)="sortTable('world')">
+          World
+        </th>
+        <th
+          scope="col"
+          appTooltip="Sort by Availability"
+          (click)="sortTable('available')"
+        >
+          Available
+        </th>
       </tr>
     </thead>
     <tbody>
