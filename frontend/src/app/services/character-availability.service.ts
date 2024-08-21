@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+import { environment } from '../../environments/environment';
+
 // Backend doesn't use types lol
 // region map -> dc map -> world array
 export type CharacterAvailabilityData = {
@@ -16,12 +18,13 @@ export type CharacterAvailabilityData = {
   providedIn: 'root'
 })
 export class CharacterAvailabilityService {
-  // TODO: This will need to be updated when served from firebase?
-  private apiUrl = '/api/character-availability';
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
 
   checkCharacterAvailability(query: string): Observable<CharacterAvailabilityData> {
-    return this.http.get<CharacterAvailabilityData>(`${this.apiUrl}?query=${encodeURIComponent(query)}`);
+    return this.http.get<CharacterAvailabilityData>(`${this.apiUrl}/api/character-availability`, {
+      params: { query }
+    });
   }
 }

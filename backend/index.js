@@ -5,6 +5,9 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const rateLimit = require("express-rate-limit");
 
+// Firebase Functions
+const functions = require("firebase-functions");
+
 // Custom modules
 const logger = require("./logger");
 const isValidCharacterName = require("./lib/isValidCharacterName");
@@ -65,7 +68,5 @@ app.get("/api/character-availability", async (req, res) => {
   }
 });
 
-// Start the server
-app.listen(PORT, () => {
-  logger.info(`Server is running on http://localhost:${PORT}/health`);
-});
+// Start the function
+exports.app = functions.https.onRequest(app);

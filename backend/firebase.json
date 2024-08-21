@@ -1,0 +1,19 @@
+{
+  "functions": {
+    "source": ".", // Root directory where your index.js (entry point) is located
+    "runtime": "nodejs22" // Keep updated
+  },
+  "hosting": {
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/api/**", // Route all /api/* requests to your Express function
+        "function": "app" // Exported property
+      }
+    ]
+  }
+}
