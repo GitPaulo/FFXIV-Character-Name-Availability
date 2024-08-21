@@ -1,3 +1,5 @@
 # FFXIV Character Availability Checker
 
-TODO
+Search for character name availability accross all FFXIV servers!
+
+![ffxivcac](image.png)
