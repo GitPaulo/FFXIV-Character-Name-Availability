@@ -34,7 +34,10 @@ app.use(
     },
   })
 ); // For logging HTTP requests
+
+
 app.use("/api/", limiter); // Apply rate limiting to all API routes
+app.set('trust proxy', true); // For rate limiting to work behind Firebase's reverse proxy
 
 // Health check route
 app.get("/health", (req, res) => {
