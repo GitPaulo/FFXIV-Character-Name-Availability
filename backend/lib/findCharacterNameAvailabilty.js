@@ -11,23 +11,23 @@ const config = require("../config");
 const limit = pLimit(config.P_LIMIT_CONCURRENCY);
 const MAX_RETRIES = config.MAX_RETRIES;
 const INITIAL_DELAY = config.INITIAL_DELAY;
-const BACKOFF_CAP = 16000; // 16 seconds
+const BACKOFF_CAP = config.BACKOFF_CAP;
 
 // Initialize NodeCache
-const availabilityCache = new NodeCache({ stdTTL: 3600, checkperiod: 600 });
-const regionCache = new NodeCache({ stdTTL: 21600, checkperiod: 1200 });
+const availabilityCache = new NodeCache({ stdTTL: config.CACHES.AVAILABILITY.TTL, checkperiod: config.CACHES.AVAILABILITY.CHECK_PERIOD });
+const regionCache = new NodeCache({ stdTTL: config.CACHES.REGION.TTL, checkperiod: config.CACHES.REGION.CHECK_PERIOD });
 
 async function fetchRegionDatacenterWorldTable() {
   const cacheKey = "regionData";
   const cachedData = regionCache.get(cacheKey);
 
   if (cachedData) {
-    logger.debug("Returning cached region data");
     return cachedData;
   }
 
   const url = "https://eu.finalfantasyxiv.com/lodestone/worldstatus/";
-  logger.debug(`Fetching world status from: ${url}`);
+  logger.debug(`Fetching world status: ${url}`);
+
   try {
     const response = await axios.get(url);
     const $ = cheerio.load(response.data);
@@ -58,11 +58,10 @@ function parseRegionDataCenters($, regionSelector) {
 
   logger.debug(`Selecting data centers with selector: ${regionSelector} > div > ul > li`);
   $(`${regionSelector} > div > ul > li`).each((i, element) => {
-    const dcName = $(element).find("h2").text().trim(); // Extract the data center name
-    logger.debug(`Found data center: ${dcName}`);
-
     const worlds = [];
+    const dcName = $(element).find("h2").text().trim(); // Extract the data center name
     logger.debug(`Selecting worlds for data center: ${dcName} with selector: ul > li`);
+
     $(element)
       .find("ul > li")
       .each((j, worldElement) => {
@@ -91,39 +90,44 @@ async function scrapeCharacter(
   const cachedResult = availabilityCache.get(cacheKey);
 
   if (cachedResult !== undefined) {
-    logger.debug(`Cache hit for world: ${world}`);
     resultContainer[world] = !cachedResult;
     return;
   }
 
+  let matchFound = false; // Default to false if an error occurs
+
   try {
-    const url = `https://na.finalfantasyxiv.com/lodestone/character/?q=${encodeURIComponent(
-      fullNameQuery
-    )}&worldname=${encodeURIComponent(world)}`;
-    logger.debug(`Fetching character data from: ${url}`);
+    const encodedName = encodeURIComponent(fullNameQuery);
+    const encodedWorld = encodeURIComponent(world);
+    const url = `https://na.finalfantasyxiv.com/lodestone/character/?q=${encodedName}&worldname=${encodedWorld}&order=5`;
+    logger.debug(`Fetching character data: ${url}`);
 
     const response = await axios.get(url);
     const $ = cheerio.load(response.data);
-    const matchFound = checkForMatch($, fullNameQuery, world);
 
-    availabilityCache.set(cacheKey, matchFound);
-    resultContainer[world] = !matchFound;
+    // Check if the character exists in the world
+    matchFound = checkForMatch($, fullNameQuery, world);
   } catch (error) {
+    // Handle rate limiting error (HTTP 429)
     if (error.response && error.response.status === 429) {
-      const retryAfter = error.response.headers["retry-after"]
-        ? parseInt(error.response.headers["retry-after"], 10) * 1000
-        : delay;
-      logger.warn(
-        `Received 429 Too Many Requests. Retrying after ${retryAfter / 1000} seconds...`
-      );
+      logger.warn(`Received 429 Too Many Requests. Retrying...`);
+
       if (retries > 0) {
-        await new Promise((resolve) => setTimeout(resolve, retryAfter));
+        const jitter = Math.random() * 1000;                         // Random jitter between 0-1000ms
+        const nextDelay = Math.min(delay * 2, BACKOFF_CAP) + jitter; // Exponential backoff with jitter
+
+        logger.warn(
+          `Retrying in ${Math.floor(nextDelay / 1000)} seconds (delay: ${nextDelay}ms)...`
+        );
+
+        // Wait for the calculated delay before retrying
+        await new Promise((resolve) => setTimeout(resolve, nextDelay));
         return scrapeCharacter(
           fullNameQuery,
           world,
           resultContainer,
           retries - 1,
-          Math.min(delay * 2, BACKOFF_CAP)
+          nextDelay
         );
       } else {
         logger.error(`Exceeded retry limit for world ${world}`);
@@ -131,8 +135,10 @@ async function scrapeCharacter(
     } else {
       logger.error(`Error occurred while searching in world ${world}`, error);
     }
-    availabilityCache.set(cacheKey, false);
-    resultContainer[world] = true;
+  } finally {
+    // Cache the result and update the result container regardless of success or failure
+    availabilityCache.set(cacheKey, matchFound);
+    resultContainer[world] = !matchFound;
   }
 }
 
