@@ -22,6 +22,9 @@
       </button>
     </form>
     <div *ngIf="loading" class="loading-spinner"></div>
+    <div *ngIf="loading && showLoadingMessage" class="loading-message">
+      This might take a few more seconds
+    </div>
   </div>
   <div class="results-container" *ngIf="result || error">
     <div *ngIf="error" class="error-message">{{ error }}</div>

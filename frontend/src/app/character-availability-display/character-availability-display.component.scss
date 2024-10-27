@@ -213,3 +213,31 @@ button[type="submit"] {
   clip: rect(0, 0, 0, 0);
   border: 0;
 }
+
+// Loading Messagae
+.loading-message {
+  color: $font-color;
+  font-weight: bold;
+  margin-top: 1rem;
+}
+
+.loading-message::after {
+  content: " ";
+  display: inline-block;
+  animation: dots 1.5s steps(5, end) infinite;
+}
+
+@keyframes dots {
+  0%, 20% {
+    content: "";
+  }
+  40% {
+    content: ".";
+  }
+  60% {
+    content: "..";
+  }
+  80%, 100% {
+    content: "...";
+  }
+}

@@ -1,4 +1,10 @@
-import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  OnDestroy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { of } from 'rxjs';
@@ -14,7 +20,9 @@ import { CharacterAvailabilityTableComponent } from '../character-availability-t
   templateUrl: './character-availability-display.component.html',
   styleUrls: ['./character-availability-display.component.scss'],
 })
-export class CharacterAvailabilityDisplayComponent implements AfterViewInit {
+export class CharacterAvailabilityDisplayComponent
+  implements AfterViewInit, OnDestroy
+{
   @ViewChild('characterQueryInput') characterQueryInput!: ElementRef;
 
   query = '';
@@ -22,8 +30,21 @@ export class CharacterAvailabilityDisplayComponent implements AfterViewInit {
   error: string | null = null;
   loading = false;
   isValid: boolean | null = null;
+  showLoadingMessage = false;
 
-  constructor(private readonly characterService: CharacterAvailabilityService) { }
+  readonly loadingMessageTimeoutDuration = 4000; // ms
+
+  private loadingMessageTimeout: any;
+
+  constructor(
+    private readonly characterService: CharacterAvailabilityService
+  ) {}
+
+  ngOnDestroy(): void {
+    if (this.loadingMessageTimeout) {
+      clearTimeout(this.loadingMessageTimeout);
+    }
+  }
 
   ngAfterViewInit(): void {
     this.characterQueryInput.nativeElement.focus(); // Auto focus on input field
@@ -31,30 +52,40 @@ export class CharacterAvailabilityDisplayComponent implements AfterViewInit {
 
   onInputChange(): void {
     // Important: Using CJS function from backend B)
-    const isValidCharacterName = require('../../../../backend/lib/isValidCharacterName.js') as (query: string) => boolean;
+    const isValidCharacterName =
+      require('../../../../backend/lib/isValidCharacterName.js') as (
+        query: string
+      ) => boolean;
     this.isValid = isValidCharacterName(this.query);
   }
 
   checkAvailability(): void {
     if (!this.isValid || !this.query) {
-      this.error = "Please enter a valid character name.";
+      this.error = 'Please enter a valid character name.';
       return;
     }
 
     this.loading = true;
     this.error = null;
     this.result = null;
+    this.showLoadingMessage = false;
+    this.loadingMessageTimeout = setTimeout(() => {
+      this.showLoadingMessage = true;
+    }, this.loadingMessageTimeoutDuration);
 
-    this.characterService.checkCharacterAvailability(this.query)
+    this.characterService
+      .checkCharacterAvailability(this.query)
       .pipe(
-        catchError(err => {
-          this.error = err?.error?.error || 'An unknown error occurred. Please try again.';
+        catchError((err) => {
+          this.error =
+            err?.error?.error || 'An unknown error occurred. Please try again.';
           return of(null);
         }),
         finalize(() => {
           this.loading = false;
+          clearTimeout(this.loadingMessageTimeout);
         })
       )
-      .subscribe(data => this.result = data);
+      .subscribe((data) => (this.result = data));
   }
 }
