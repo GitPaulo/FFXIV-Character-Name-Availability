@@ -6,25 +6,33 @@
           scope="col"
           appTooltip="Sort by Region"
           (click)="sortTable('region')"
+          class="sortable-header"
         >
-          Region
+          Region{{ getSortIndicator("region") }}
         </th>
         <th
           scope="col"
           appTooltip="Sort by Data Center"
           (click)="sortTable('dc')"
+          class="sortable-header"
         >
-          Data Center
+          Data Center{{ getSortIndicator("dc") }}
         </th>
-        <th scope="col" appTooltip="Sort by World" (click)="sortTable('world')">
-          World
+        <th
+          scope="col"
+          appTooltip="Sort by World"
+          (click)="sortTable('world')"
+          class="sortable-header"
+        >
+          World{{ getSortIndicator("world") }}
         </th>
         <th
           scope="col"
           appTooltip="Sort by Availability"
           (click)="sortTable('available')"
+          class="sortable-header"
         >
-          Available
+          Available{{ getSortIndicator("available") }}
         </th>
       </tr>
     </thead>

@@ -29,6 +29,14 @@ th:hover {
   background-color: #e0e0e0;
 }
 
+.sortable-header {
+  position: relative;
+}
+
+.sortable-header:hover {
+  background-color: #d0d0d0;
+}
+
 tr:nth-child(odd) td {
   background-color: #f9f9f9;
 }

@@ -19,6 +19,9 @@ type AvailabilityTableRow = {
 // Define the possible keys for sorting
 type SortableColumns = 'region' | 'dc' | 'world' | 'available';
 
+// Define the sort states
+type SortState = 'none' | 'asc' | 'desc';
+
 @Component({
   selector: 'app-character-availability-table',
   standalone: true,
@@ -32,6 +35,11 @@ export class CharacterAvailabilityTableComponent implements OnChanges {
   filterQuery: string = '';
   sortedData: AvailabilityTableRow[] = [];
   filteredData: AvailabilityTableRow[] = [];
+  originalData: AvailabilityTableRow[] = [];
+
+  // Track current sort state
+  currentSortColumn: SortableColumns | null = null;
+  currentSortState: SortState = 'none';
 
   readonly dcColors: string[] = [
     '#E3F2FD',
@@ -52,8 +60,11 @@ export class CharacterAvailabilityTableComponent implements OnChanges {
 
   ngOnChanges(): void {
     if (this.data) {
-      this.sortedData = this.transformData(this.data);
+      this.originalData = this.transformData(this.data);
+      this.sortedData = [...this.originalData];
       this.filteredData = [...this.sortedData]; // Initialize filteredData with sortedData
+      this.currentSortColumn = 'dc';
+      this.currentSortState = 'asc';
       this.sortTable('dc'); // Default sorting by Data Center
     }
   }
@@ -63,7 +74,9 @@ export class CharacterAvailabilityTableComponent implements OnChanges {
   }
 
   openCharacterPage(world: string): void {
-    const queryInput = document.getElementById('characterQuery') as HTMLInputElement;
+    const queryInput = document.getElementById(
+      'characterQuery'
+    ) as HTMLInputElement;
     const query = queryInput?.value || '';
 
     if (query) {
@@ -75,15 +88,90 @@ export class CharacterAvailabilityTableComponent implements OnChanges {
   }
 
   sortTable(column: SortableColumns): void {
+    this.updateSortState(column);
+    this.applySorting();
+  }
+
+  private updateSortState(column: SortableColumns): void {
+    if (this.currentSortColumn === column) {
+      // Same column clicked, cycle through states
+      this.currentSortState = this.getNextSortState(this.currentSortState);
+    } else {
+      // Different column clicked, start with ascending
+      this.currentSortColumn = column;
+      this.currentSortState = 'asc';
+    }
+
+    // Clear sort column when no sort is applied
+    if (this.currentSortState === 'none') {
+      this.currentSortColumn = null;
+    }
+  }
+
+  private getNextSortState(currentState: SortState): SortState {
+    const stateOrder: SortState[] = ['asc', 'desc', 'none'];
+    const currentIndex = stateOrder.indexOf(currentState);
+    return stateOrder[(currentIndex + 1) % stateOrder.length];
+  }
+
+  private applySorting(): void {
+    if (this.currentSortState === 'none') {
+      this.filteredData = this.getFilteredOriginalData();
+    } else {
+      this.sortFilteredData();
+    }
+  }
+
+  private sortFilteredData(): void {
+    const column = this.currentSortColumn!;
     this.filteredData.sort((a, b) => {
-      if (column === 'available') {
-        return a.available === b.available ? 0 : a.available ? -1 : 1;
-      }
-      return a[column].localeCompare(b[column]);
+      const comparison = this.compareValues(a, b, column);
+      return this.currentSortState === 'desc' ? -comparison : comparison;
     });
   }
 
-  private transformData(data: CharacterAvailabilityData): AvailabilityTableRow[] {
+  private compareValues(
+    a: AvailabilityTableRow,
+    b: AvailabilityTableRow,
+    column: SortableColumns
+  ): number {
+    if (column === 'available') {
+      // For boolean values: available items first when ascending
+      return a.available === b.available ? 0 : a.available ? -1 : 1;
+    }
+    // For string values
+    return a[column].localeCompare(b[column]);
+  }
+
+  // Helper method to get filtered data in original order
+  private getFilteredOriginalData(): AvailabilityTableRow[] {
+    const query = this.filterQuery.toLowerCase();
+    return this.originalData.filter(
+      (item) =>
+        item.dc.toLowerCase().includes(query) ||
+        item.world.toLowerCase().includes(query)
+    );
+  }
+
+  // Method to get sort indicator for display
+  getSortIndicator(column: SortableColumns): string {
+    if (this.currentSortColumn !== column) {
+      return '';
+    }
+
+    switch (this.currentSortState) {
+      case 'asc':
+        return ' ↑';
+      case 'desc':
+        return ' ↓';
+      default:
+        return '';
+    }
+  }
+
+  private transformData(
+    data: CharacterAvailabilityData
+  ): AvailabilityTableRow[] {
     const result: AvailabilityTableRow[] = [];
     let colorIndex = 0;
 
@@ -113,10 +201,15 @@ export class CharacterAvailabilityTableComponent implements OnChanges {
 
   private applyFilter(): void {
     const query = this.filterQuery.toLowerCase();
-    this.filteredData = this.sortedData.filter(
+    this.filteredData = this.originalData.filter(
       (item) =>
         item.dc.toLowerCase().includes(query) ||
         item.world.toLowerCase().includes(query)
     );
+
+    // Re-apply current sorting if any
+    if (this.currentSortState !== 'none' && this.currentSortColumn) {
+      this.sortFilteredData();
+    }
   }
 }

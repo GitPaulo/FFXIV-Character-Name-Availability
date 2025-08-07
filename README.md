@@ -1,7 +1,9 @@
 # FFXIV Character Availability Checker
 
-Angular frontend and Express backend. They web scrape loadstone search results for character name availability across all servers and regions- it's a character name checker! It tries its best to complete all searches!
+Simple tool to check the availability of a name across FFXIV datacenters.
 
-![ffxivcac](preview.png)
+It webscrapes lodestone.
 
-> It's not a great solution yet, but it works!
+![preview default](preview.png)
+
+> It's not a great solution, but it works! :3

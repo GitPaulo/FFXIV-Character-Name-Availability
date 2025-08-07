@@ -32,8 +32,9 @@ $box-shadow-color: rgba(0, 123, 255, 0.2);
 }
 
 #title {
-  font-size: 4rem;
-  letter-spacing: 0.24rem;
+  font-size: 3.3rem;
+  letter-spacing: 0.1em;
+  font-weight: 500;
   margin-bottom: 1rem;
   color: #0e0e0e;
 
@@ -113,6 +114,7 @@ input[type="text"] {
 button[type="submit"] {
   display: inline-block;
   padding: 0.8rem 1.5rem;
+  margin-left: 2px;
   font-size: 1rem;
   font-weight: bold;
   color: #fff;

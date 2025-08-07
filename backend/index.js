@@ -12,20 +12,49 @@ const functions = require("firebase-functions");
 const logger = require("./logger");
 const isValidCharacterName = require("./lib/isValidCharacterName");
 const findCharacterNameAvailability = require("./lib/findCharacterNameAvailabilty");
-const { MIN_CHARACTER_NAME_LENGTH, MAX_CHARACTER_NAME_LENGTH, MAX_CHARACTER_NAME_COMBINED_LENGTH } = require("./lib/CharacterNameContants");
+const {
+  MIN_CHARACTER_NAME_LENGTH,
+  MAX_CHARACTER_NAME_LENGTH,
+  MAX_CHARACTER_NAME_COMBINED_LENGTH,
+} = require("./lib/CharacterNameContants");
 
 const app = express();
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
+  message: "Too many requests from this IP, please try again later.",
+  standardHeaders: true, // Return rate limit info in the headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  // Custom key generator to handle undefined IP addresses
+  keyGenerator: (req) => {
+    // Get IP from various headers, fallback to connection info
+    const forwarded = req.get("X-Forwarded-For");
+    const realIP = req.get("X-Real-IP");
+    const remoteAddress =
+      (req.connection && req.connection.remoteAddress) ||
+      (req.socket && req.socket.remoteAddress);
+
+    const ip =
+      (forwarded && forwarded.split(",")[0].trim()) ||
+      realIP ||
+      remoteAddress ||
+      "unknown";
+
+    logger.info(`Rate limit key generated for IP: ${ip}`);
+    return ip;
+  },
+  // Skip rate limiting for health checks
+  skip: (req) => req.path === "/health",
 });
-const PORT = process.env.PORT || 6969;
+
+// Set
+app.set("trust proxy", 1); // Trust first proxy (Firebase's load balancer)
 
 // Middleware
 app.use(helmet()); // For setting various HTTP headers for security
 app.use(cors({ origin: true })); // For enabling CORS headers
 app.use(bodyParser.json()); // For parsing application/json
-app.use(
+app.use( // For logging HTTP requests
   morgan("combined", {
     stream: {
       write: (message) => {
@@ -35,9 +64,7 @@ app.use(
   })
 ); // For logging HTTP requests
 
-
 app.use("/api/", limiter); // Apply rate limiting to all API routes
-app.set('trust proxy', true); // For rate limiting to work behind Firebase's reverse proxy
 
 // Health check route
 app.get("/health", (req, res) => {
