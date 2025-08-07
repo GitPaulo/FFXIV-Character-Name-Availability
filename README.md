@@ -1,8 +1,8 @@
 # FFXIV Character Availability Checker
 
-Simple tool to check the availability of a name across FFXIV datacenters.
+Simple tool to check the availability of a character name across FFXIV datacenters.
 
-It webscrapes lodestone.
+It web scrapes lodestone.
 
 ![preview default](preview.png)
 
