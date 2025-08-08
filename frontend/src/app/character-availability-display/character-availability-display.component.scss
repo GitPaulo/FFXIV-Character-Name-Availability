@@ -58,14 +58,14 @@ $box-shadow-color: rgba(0, 123, 255, 0.2);
   background: none;
   border: 2px solid $primary-color;
   color: $primary-color;
-  padding: 8px;
+  padding: 2px;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   @include transition(all);
 
   &:hover {
