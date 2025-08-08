@@ -12,11 +12,17 @@ import { catchError, finalize } from 'rxjs/operators';
 
 import { CharacterAvailabilityService } from '../services/character-availability.service';
 import { CharacterAvailabilityTableComponent } from '../character-availability-table/character-availability-table.component';
+import { InfoModalComponent } from '../info-modal/info-modal.component';
 
 @Component({
   selector: 'app-character-availability-display',
   standalone: true,
-  imports: [CommonModule, FormsModule, CharacterAvailabilityTableComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    CharacterAvailabilityTableComponent,
+    InfoModalComponent,
+  ],
   templateUrl: './character-availability-display.component.html',
   styleUrls: ['./character-availability-display.component.scss'],
 })
@@ -31,6 +37,7 @@ export class CharacterAvailabilityDisplayComponent
   loading = false;
   isValid: boolean | null = null;
   showLoadingMessage = false;
+  isInfoModalVisible = false;
 
   readonly loadingMessageTimeoutDuration = 4000; // ms
 
@@ -87,5 +94,13 @@ export class CharacterAvailabilityDisplayComponent
         })
       )
       .subscribe((data) => (this.result = data));
+  }
+
+  openInfoModal(): void {
+    this.isInfoModalVisible = true;
+  }
+
+  closeInfoModal(): void {
+    this.isInfoModalVisible = false;
   }
 }

@@ -1,6 +1,20 @@
 <div class="display">
   <div [class.loading]="loading" [class.results-loaded]="result">
-    <h1 id="title">FINAL FANTASY XIV</h1>
+    <div class="header-section">
+      <h1 id="title">FINAL FANTASY XIV</h1>
+      <button
+        class="info-button"
+        (click)="openInfoModal()"
+        title="How it works"
+        aria-label="Information about how the backend works"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+          />
+        </svg>
+      </button>
+    </div>
     <form (ngSubmit)="checkAvailability()">
       <label for="characterQuery" class="visually-hidden">Character Name</label>
       <input
@@ -8,7 +22,7 @@
         id="characterQuery"
         type="text"
         name="query"
-        placeholder="John Doe"
+        placeholder="John Fantasy"
         [(ngModel)]="query"
         (ngModelChange)="onInputChange()"
         [ngClass]="{
@@ -34,3 +48,11 @@
     ></app-character-availability-table>
   </div>
 </div>
+
+<!-- Info Modal -->
+<app-info-modal
+  [isVisible]="isInfoModalVisible"
+  [title]="'How does it work?'"
+  (closeModal)="closeInfoModal()"
+>
+</app-info-modal>

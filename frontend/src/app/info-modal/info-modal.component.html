@@ -1,0 +1,62 @@
+<div
+  class="modal-backdrop"
+  *ngIf="isVisible"
+  (click)="onBackdropClick($event)"
+  tabindex="0"
+>
+  <div
+    class="modal-content"
+    role="dialog"
+    aria-labelledby="modal-title"
+    aria-modal="true"
+  >
+    <div class="modal-header">
+      <h2 id="modal-title">{{ title }}</h2>
+      <button
+        class="close-button"
+        (click)="onCloseModal()"
+        aria-label="Close modal"
+      >
+        ×
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <h3>How?</h3>
+      <p>
+        This tool searches the official FFXIV Lodestone website to check if
+        character names are available on different servers.
+      </p>
+
+      <div class="warning-box">
+        <h4>Rate Limiting</h4>
+        <p>
+          Requests are intentionally slowed down to be respectful to Square
+          Enix's servers and also avoid rate limits.
+        </p>
+      </div>
+
+      <div class="info-box">
+        <h4>Can't use username even if it says 'available'?</h4>
+        <ul>
+          <li>
+            Results come from the Lodestone, they do not reflect real time
+            username acquisition
+          </li>
+          <li>Recently deleted characters might still show as "taken"</li>
+          <li>
+            Some characters are set to private and won't show up in searches,
+            maybe?
+          </li>
+        </ul>
+      </div>
+
+      <p class="disclaimer">
+        <small>
+          FANTASY is a registered trademark of Square Enix Holdings Co., Ltd.
+          FINAL FANTASY XIV © SQUARE ENIX CO., LTD.
+        </small>
+      </p>
+    </div>
+  </div>
+</div>
