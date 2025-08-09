@@ -1,20 +1,31 @@
-import { Directive, ElementRef, Input, Renderer2, HostListener } from '@angular/core';
+import {
+  Directive,
+  ElementRef,
+  Input,
+  Renderer2,
+  HostListener,
+  OnDestroy,
+} from '@angular/core';
 
 @Directive({
   selector: '[appTooltip]',
   standalone: true,
 })
-export class TooltipDirective {
+export class TooltipDirective implements OnDestroy {
   @Input('appTooltip') tooltipText: string = '';
   private tooltipElement?: HTMLElement;
 
-  constructor(private el: ElementRef, private renderer: Renderer2) { }
+  constructor(private el: ElementRef, private renderer: Renderer2) {}
 
   @HostListener('mouseenter') onMouseEnter() {
     this.showTooltip();
   }
 
   @HostListener('mouseleave') onMouseLeave() {
+    this.hideTooltip();
+  }
+
+  ngOnDestroy(): void {
     this.hideTooltip();
   }
 
@@ -39,7 +50,10 @@ export class TooltipDirective {
     this.renderer.setStyle(this.tooltipElement, 'opacity', '0.8');
 
     const hostPos = this.el.nativeElement.getBoundingClientRect();
-    const tooltipPos = this.tooltipElement?.getBoundingClientRect() || { width: 0, height: 0 }; // This is stupid
+    const tooltipPos = this.tooltipElement?.getBoundingClientRect() || {
+      width: 0,
+      height: 0,
+    }; // This is stupid
 
     const top = hostPos.top - tooltipPos.height - 2;
     const left = hostPos.left + (hostPos.width - tooltipPos.width) / 2;
