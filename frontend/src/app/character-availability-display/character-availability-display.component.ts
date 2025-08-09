@@ -99,9 +99,8 @@ export class CharacterAvailabilityDisplayComponent
         this.result = data;
         // Focus the filter input after the table is loaded
         if (data && this.tableComponent) {
-          setTimeout(() => {
-            this.tableComponent.focusFilterInput();
-          }, 100); // Small delay to ensure the table is rendered
+          // Let the table component handle the timing for focus
+          this.tableComponent.focusFilterInput();
         }
       });
   }

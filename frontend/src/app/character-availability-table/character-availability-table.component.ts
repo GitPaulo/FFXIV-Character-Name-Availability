@@ -3,6 +3,7 @@ import {
   Input,
   OnChanges,
   OnDestroy,
+  AfterViewInit,
   ViewChild,
   ElementRef,
 } from '@angular/core';
@@ -33,7 +34,7 @@ type SortState = 'none' | 'asc' | 'desc';
   styleUrls: ['./character-availability-table.component.scss'],
 })
 export class CharacterAvailabilityTableComponent
-  implements OnChanges, OnDestroy
+  implements OnChanges, OnDestroy, AfterViewInit
 {
   @Input() data: CharacterAvailabilityData | null = null;
   @ViewChild('filterInput') filterInput!: ElementRef<HTMLInputElement>;
@@ -63,11 +64,19 @@ export class CharacterAvailabilityTableComponent
 
   private readonly destroy$ = new Subject<void>();
   private readonly filterQueryChanged = new Subject<string>();
+  private shouldFocusFilter = false;
 
   constructor() {
     this.filterQueryChanged
       .pipe(debounceTime(300), takeUntil(this.destroy$))
       .subscribe(() => this.applyFilter());
+  }
+
+  ngAfterViewInit(): void {
+    if (this.shouldFocusFilter && this.filteredData.length > 0) {
+      this.focusFilterInput();
+      this.shouldFocusFilter = false;
+    }
   }
 
   ngOnChanges(): void {
@@ -77,6 +86,7 @@ export class CharacterAvailabilityTableComponent
       this.currentSortColumn = 'dc';
       this.currentSortState = 'asc';
       this.sortTable('dc');
+      this.shouldFocusFilter = true;
     }
   }
 
@@ -126,7 +136,31 @@ export class CharacterAvailabilityTableComponent
   }
 
   focusFilterInput(): void {
-    this.filterInput?.nativeElement?.focus();
+    // Use a longer timeout to ensure DOM is fully rendered
+    const attemptFocus = (attempts = 0) => {
+      if (attempts > 10) {
+        console.warn('Could not focus filter input after 10 attempts');
+        return;
+      }
+
+      if (this.filterInput?.nativeElement) {
+        try {
+          this.filterInput.nativeElement.focus();
+          // Also scroll the input into view in case it's below the fold
+          this.filterInput.nativeElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          });
+        } catch (error) {
+          console.warn('Could not focus filter input:', error);
+        }
+      } else {
+        // Element not ready yet, try again
+        setTimeout(() => attemptFocus(attempts + 1), 50);
+      }
+    };
+
+    setTimeout(() => attemptFocus(), 250);
   }
 
   private updateSortState(column: SortableColumns): void {
