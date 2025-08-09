@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+# Disallow crawling of Angular dev files if accidentally deployed
+Disallow: /*.js.map
+Disallow: /*.css.map
