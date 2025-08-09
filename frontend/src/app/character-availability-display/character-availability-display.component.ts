@@ -30,6 +30,8 @@ export class CharacterAvailabilityDisplayComponent
   implements AfterViewInit, OnDestroy
 {
   @ViewChild('characterQueryInput') characterQueryInput!: ElementRef;
+  @ViewChild(CharacterAvailabilityTableComponent)
+  tableComponent!: CharacterAvailabilityTableComponent;
 
   query = '';
   result: any = null;
@@ -93,7 +95,15 @@ export class CharacterAvailabilityDisplayComponent
           clearTimeout(this.loadingMessageTimeout);
         })
       )
-      .subscribe((data) => (this.result = data));
+      .subscribe((data) => {
+        this.result = data;
+        // Focus the filter input after the table is loaded
+        if (data && this.tableComponent) {
+          setTimeout(() => {
+            this.tableComponent.focusFilterInput();
+          }, 100); // Small delay to ensure the table is rendered
+        }
+      });
   }
 
   openInfoModal(): void {

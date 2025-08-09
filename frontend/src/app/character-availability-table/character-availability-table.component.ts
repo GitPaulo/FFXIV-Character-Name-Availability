@@ -1,13 +1,19 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnChanges,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { debounceTime, takeUntil } from 'rxjs/operators';
 
 import { CharacterAvailabilityData } from '../services/character-availability.service';
 import { TooltipDirective } from '../tooltip.directive';
 
-// Define the type for a single row in the availability table
 type AvailabilityTableRow = {
   region: string;
   dc: string;
@@ -16,10 +22,7 @@ type AvailabilityTableRow = {
   color: string;
 };
 
-// Define the possible keys for sorting
 type SortableColumns = 'region' | 'dc' | 'world' | 'available';
-
-// Define the sort states
 type SortState = 'none' | 'asc' | 'desc';
 
 @Component({
@@ -29,62 +32,61 @@ type SortState = 'none' | 'asc' | 'desc';
   templateUrl: './character-availability-table.component.html',
   styleUrls: ['./character-availability-table.component.scss'],
 })
-export class CharacterAvailabilityTableComponent implements OnChanges {
+export class CharacterAvailabilityTableComponent
+  implements OnChanges, OnDestroy
+{
   @Input() data: CharacterAvailabilityData | null = null;
+  @ViewChild('filterInput') filterInput!: ElementRef<HTMLInputElement>;
 
-  filterQuery: string = '';
-  sortedData: AvailabilityTableRow[] = [];
+  filterQuery = '';
   filteredData: AvailabilityTableRow[] = [];
   originalData: AvailabilityTableRow[] = [];
 
-  // Track current sort state
   currentSortColumn: SortableColumns | null = null;
   currentSortState: SortState = 'none';
 
-  readonly dcColors: string[] = [
+  private static readonly dcColors = [
     '#E3F2FD',
     '#E1F5FE',
     '#E0F7FA',
     '#E8F5E9',
     '#FFF3E0',
     '#FBE9E7',
-  ];
+  ] as const;
+  private static readonly sortStateOrder: readonly SortState[] = [
+    'asc',
+    'desc',
+    'none',
+  ] as const;
+  private static readonly lodestoneBaseUrl =
+    'https://na.finalfantasyxiv.com/lodestone/character/' as const;
 
-  private filterQueryChanged: Subject<string> = new Subject<string>();
+  private readonly destroy$ = new Subject<void>();
+  private readonly filterQueryChanged = new Subject<string>();
 
   constructor() {
     this.filterQueryChanged
-      .pipe(debounceTime(300))
+      .pipe(debounceTime(300), takeUntil(this.destroy$))
       .subscribe(() => this.applyFilter());
   }
 
   ngOnChanges(): void {
     if (this.data) {
       this.originalData = this.transformData(this.data);
-      this.sortedData = [...this.originalData];
-      this.filteredData = [...this.sortedData]; // Initialize filteredData with sortedData
+      this.filteredData = [...this.originalData];
       this.currentSortColumn = 'dc';
       this.currentSortState = 'asc';
-      this.sortTable('dc'); // Default sorting by Data Center
+      this.sortTable('dc');
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onFilterChange(query: string): void {
     this.filterQueryChanged.next(query);
-  }
-
-  openCharacterPage(world: string): void {
-    const queryInput = document.getElementById(
-      'characterQuery'
-    ) as HTMLInputElement;
-    const query = queryInput?.value || '';
-
-    if (query) {
-      const encodedQuery = encodeURIComponent(query);
-      const encodedWorld = encodeURIComponent(world);
-      const url = `https://na.finalfantasyxiv.com/lodestone/character/?q=${encodedQuery}&worldname=${encodedWorld}`;
-      window.open(url, '_blank');
-    }
   }
 
   sortTable(column: SortableColumns): void {
@@ -92,68 +94,6 @@ export class CharacterAvailabilityTableComponent implements OnChanges {
     this.applySorting();
   }
 
-  private updateSortState(column: SortableColumns): void {
-    if (this.currentSortColumn === column) {
-      // Same column clicked, cycle through states
-      this.currentSortState = this.getNextSortState(this.currentSortState);
-    } else {
-      // Different column clicked, start with ascending
-      this.currentSortColumn = column;
-      this.currentSortState = 'asc';
-    }
-
-    // Clear sort column when no sort is applied
-    if (this.currentSortState === 'none') {
-      this.currentSortColumn = null;
-    }
-  }
-
-  private getNextSortState(currentState: SortState): SortState {
-    const stateOrder: SortState[] = ['asc', 'desc', 'none'];
-    const currentIndex = stateOrder.indexOf(currentState);
-    return stateOrder[(currentIndex + 1) % stateOrder.length];
-  }
-
-  private applySorting(): void {
-    if (this.currentSortState === 'none') {
-      this.filteredData = this.getFilteredOriginalData();
-    } else {
-      this.sortFilteredData();
-    }
-  }
-
-  private sortFilteredData(): void {
-    const column = this.currentSortColumn!;
-    this.filteredData.sort((a, b) => {
-      const comparison = this.compareValues(a, b, column);
-      return this.currentSortState === 'desc' ? -comparison : comparison;
-    });
-  }
-
-  private compareValues(
-    a: AvailabilityTableRow,
-    b: AvailabilityTableRow,
-    column: SortableColumns
-  ): number {
-    if (column === 'available') {
-      // For boolean values: available items first when ascending
-      return a.available === b.available ? 0 : a.available ? -1 : 1;
-    }
-    // For string values
-    return a[column].localeCompare(b[column]);
-  }
-
-  // Helper method to get filtered data in original order
-  private getFilteredOriginalData(): AvailabilityTableRow[] {
-    const query = this.filterQuery.toLowerCase();
-    return this.originalData.filter(
-      (item) =>
-        item.dc.toLowerCase().includes(query) ||
-        item.world.toLowerCase().includes(query)
-    );
-  }
-
-  // Method to get sort indicator for display
   getSortIndicator(column: SortableColumns): string {
     if (this.currentSortColumn !== column) {
       return '';
@@ -169,47 +109,110 @@ export class CharacterAvailabilityTableComponent implements OnChanges {
     }
   }
 
-  private transformData(
-    data: CharacterAvailabilityData
-  ): AvailabilityTableRow[] {
-    const result: AvailabilityTableRow[] = [];
-    let colorIndex = 0;
+  openCharacterPage(world: string): void {
+    const queryInput = document.getElementById(
+      'characterQuery'
+    ) as HTMLInputElement;
+    const query = queryInput?.value || '';
 
-    Object.keys(data).forEach((region) => {
-      const regionData = data[region as keyof CharacterAvailabilityData];
-      Object.keys(regionData).forEach((dc) => {
-        const dcColor = this.getBackgroundColor(colorIndex++);
-        const dcData = regionData[dc];
-        Object.keys(dcData).forEach((world) => {
-          result.push({
-            region,
-            dc,
-            world,
-            available: dcData[world],
-            color: dcColor,
-          });
-        });
+    if (query) {
+      const params = new URLSearchParams({
+        q: query,
+        worldname: world,
       });
-    });
-
-    return result;
+      const url = `${CharacterAvailabilityTableComponent.lodestoneBaseUrl}?${params}`;
+      window.open(url, '_blank');
+    }
   }
 
-  private getBackgroundColor(index: number): string {
-    return this.dcColors[index % this.dcColors.length];
+  focusFilterInput(): void {
+    this.filterInput?.nativeElement?.focus();
   }
 
-  private applyFilter(): void {
+  private updateSortState(column: SortableColumns): void {
+    if (this.currentSortColumn === column) {
+      this.currentSortState = this.getNextSortState(this.currentSortState);
+    } else {
+      this.currentSortColumn = column;
+      this.currentSortState = 'asc';
+    }
+
+    if (this.currentSortState === 'none') {
+      this.currentSortColumn = null;
+    }
+  }
+
+  private getNextSortState(currentState: SortState): SortState {
+    const currentIndex =
+      CharacterAvailabilityTableComponent.sortStateOrder.indexOf(currentState);
+    return CharacterAvailabilityTableComponent.sortStateOrder[
+      (currentIndex + 1) %
+        CharacterAvailabilityTableComponent.sortStateOrder.length
+    ];
+  }
+
+  private applySorting(): void {
+    this.applyFilter();
+  }
+
+  private compareValues(
+    a: AvailabilityTableRow,
+    b: AvailabilityTableRow,
+    column: SortableColumns
+  ): number {
+    if (column === 'available') {
+      return a.available === b.available ? 0 : a.available ? -1 : 1;
+    }
+    return a[column].localeCompare(b[column]);
+  }
+
+  private getFilteredData(): AvailabilityTableRow[] {
     const query = this.filterQuery.toLowerCase();
-    this.filteredData = this.originalData.filter(
+    return this.originalData.filter(
       (item) =>
         item.dc.toLowerCase().includes(query) ||
         item.world.toLowerCase().includes(query)
     );
+  }
 
-    // Re-apply current sorting if any
+  private applyFilter(): void {
+    this.filteredData = this.getFilteredData();
+
     if (this.currentSortState !== 'none' && this.currentSortColumn) {
       this.sortFilteredData();
     }
+  }
+
+  private sortFilteredData(): void {
+    const column = this.currentSortColumn!;
+    this.filteredData.sort((a, b) => {
+      const comparison = this.compareValues(a, b, column);
+      return this.currentSortState === 'desc' ? -comparison : comparison;
+    });
+  }
+
+  private transformData(
+    data: CharacterAvailabilityData
+  ): AvailabilityTableRow[] {
+    let colorIndex = 0;
+
+    return Object.entries(data).flatMap(([region, regionData]) =>
+      Object.entries(regionData).flatMap(([dc, dcData]) => {
+        const dcColor = this.getBackgroundColor(colorIndex++);
+        return Object.entries(dcData).map(([world, available]) => ({
+          region,
+          dc,
+          world,
+          available,
+          color: dcColor,
+        }));
+      })
+    );
+  }
+
+  private getBackgroundColor(index: number): string {
+    return CharacterAvailabilityTableComponent.dcColors[
+      index % CharacterAvailabilityTableComponent.dcColors.length
+    ];
   }
 }
