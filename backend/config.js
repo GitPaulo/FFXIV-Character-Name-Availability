@@ -1,9 +1,9 @@
 require('dotenv').config();
 
-const DEFAULT_MAX_RETRIES = 3;
-const DEFAULT_INITIAL_DELAY = 500; // in milliseconds
-const DEFAULT_P_LIMIT_CONCURRENCY = 16;
-const DEFAULT_BACKOFF_CAP = 16000; // in milliseconds
+const DEFAULT_MAX_RETRIES = 3; // maximum number of retries for failed requests
+const DEFAULT_INITIAL_DELAY = 1000; // in milliseconds
+const DEFAULT_P_LIMIT_CONCURRENCY = 5; // maximum number of concurrent requests
+const DEFAULT_BACKOFF_CAP = 30000; // maximum backoff delay in milliseconds
 const DEFAULT_AVAILABILITY_CACHE_TTL = 3600; // in seconds
 const DEFAULT_AVAILABILITY_CACHE_CHECK_PERIOD = 600; // in seconds
 const DEFAULT_REGION_CACHE_TTL = 21600; // in seconds

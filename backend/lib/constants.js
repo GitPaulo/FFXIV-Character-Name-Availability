@@ -1,3 +1,7 @@
+/**
+ * Character name constants for validation and constraints
+ * Shared across the application
+ */
 module.exports = {
   CHARACTER_NAME_REGEX: /^[a-zA-Z]+$/,
   MAX_CHARACTER_NAME_LENGTH: 15,

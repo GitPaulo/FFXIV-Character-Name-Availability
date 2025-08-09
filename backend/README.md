@@ -4,7 +4,7 @@ Express.js backend for FFXIV Character Availability Checker.
 
 ### Pre-requisites
 
-- Firebase CLI: `sudo npm install -g firebase-tools`
+- Firebase CLI: `npm install -g firebase-tools`
 
 ## Run
 

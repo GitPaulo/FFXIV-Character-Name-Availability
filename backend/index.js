@@ -9,14 +9,14 @@ const rateLimit = require("express-rate-limit");
 const functions = require("firebase-functions");
 
 // Custom modules
-const logger = require("./logger");
+const logger = require("./lib/logger");
 const isValidCharacterName = require("./lib/isValidCharacterName");
-const findCharacterNameAvailability = require("./lib/findCharacterNameAvailabilty");
+const findCharacterNameAvailability = require("./lib/lodestoneScrapper");
 const {
   MIN_CHARACTER_NAME_LENGTH,
   MAX_CHARACTER_NAME_LENGTH,
   MAX_CHARACTER_NAME_COMBINED_LENGTH,
-} = require("./lib/CharacterNameContants");
+} = require("./lib/constants");
 
 const app = express();
 const limiter = rateLimit({
@@ -76,7 +76,7 @@ app.get("/api/character-availability", async (req, res) => {
   try {
     const { query } = req.query;
 
-    logger.info("Query received:", query);
+    logger.info(`Query received: ${query}`);
 
     if (!query) {
       return res.status(400).json({ error: "Query parameter is required" });
