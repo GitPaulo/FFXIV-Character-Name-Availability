@@ -7,7 +7,7 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:verbose": "jest --verbose",
-    "test:e2e": "NODE_ENV=test jest --testPathPatterns=e2e --verbose --detectOpenHandles"
+    "test:e2e": "NODE_ENV=test jest tests/*.e2e.test.js --testPathIgnorePatterns='/dev/null' --verbose"
   },
   "keywords": [],
   "author": "",
